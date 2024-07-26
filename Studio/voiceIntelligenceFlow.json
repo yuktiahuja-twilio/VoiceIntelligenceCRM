@@ -1,0 +1,165 @@
+{
+  "description": "voiceIntelligenceFlow",
+  "states": [
+    {
+      "name": "Trigger",
+      "type": "trigger",
+      "transitions": [
+        {
+          "event": "incomingMessage"
+        },
+        {
+          "next": "say_play_record_message",
+          "event": "incomingCall"
+        },
+        {
+          "event": "incomingConversationMessage"
+        },
+        {
+          "event": "incomingRequest"
+        },
+        {
+          "event": "incomingParent"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -190,
+          "y": -280
+        }
+      }
+    },
+    {
+      "name": "say_play_record_message",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "call_recording",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Joanna",
+        "offset": {
+          "x": -110,
+          "y": -70
+        },
+        "loop": 1,
+        "say": "Hello This call is being recorded.",
+        "language": "en-US"
+      }
+    },
+    {
+      "name": "call_recording",
+      "type": "record-call",
+      "transitions": [
+        {
+          "next": "gather_name",
+          "event": "success"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "record_call": true,
+        "offset": {
+          "x": 40,
+          "y": 150
+        },
+        "trim": "do-not-trim",
+        "recording_status_callback": "https://voiceintelligence-xxxx.twil.io/transcribe",
+        "recording_status_callback_method": "POST",
+        "recording_status_callback_events": "completed",
+        "recording_channels": "dual"
+      }
+    },
+    {
+      "name": "gather_name",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "event": "keypress"
+        },
+        {
+          "next": "gather_summary",
+          "event": "speech"
+        },
+        {
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Joanna",
+        "speech_timeout": "auto",
+        "offset": {
+          "x": -270,
+          "y": 370
+        },
+        "loop": 1,
+        "finish_on_key": "#",
+        "say": "Hi, this is Abigail from the after-hours service at Owl Real Estate Company. Thank you for calling. May I know your name?",
+        "language": "en-US",
+        "stop_gather": true,
+        "gather_language": "en-US",
+        "profanity_filter": "true",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "gather_summary",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "event": "keypress"
+        },
+        {
+          "next": "say_play_bye",
+          "event": "speech"
+        },
+        {
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Joanna",
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 20,
+          "y": 610
+        },
+        "loop": 1,
+        "finish_on_key": "#",
+        "say": "Thanks for your information. Please leave a message with your desired location and property details, like the number of bedrooms?",
+        "language": "en-US",
+        "stop_gather": true,
+        "gather_language": "en",
+        "profanity_filter": "true",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "say_play_bye",
+      "type": "say-play",
+      "transitions": [
+        {
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Joanna",
+        "offset": {
+          "x": -110,
+          "y": 870
+        },
+        "loop": 1,
+        "say": "Thank you for this message; an agent will call you during normal business hours. Have a pleasant day! Bye bye",
+        "language": "en-US"
+      }
+    }
+  ],
+  "initial_state": "Trigger",
+  "flags": {
+    "allow_concurrent_calls": true
+  }
+}
